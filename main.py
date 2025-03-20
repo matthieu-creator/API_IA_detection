@@ -9,12 +9,31 @@ from pydantic import BaseModel
 from PIL import Image
 import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
+import gdown
+import os
 
 # uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 
 
 # Charger le modèle
-model = tf.keras.models.load_model("model.keras")
+
+MODEL_PATHS = ["model.keras"] + [f"model_{k}.keras" for k in range(1,6)]
+MODEL_URLS = ["https://drive.google.com/file/d/1L5QUySliYl1JUTXISVJ1ZfYfke-MkIFi/view?usp=drive_link",
+               "https://drive.google.com/file/d/1DPEDyXpF80ken-dKuxD5G84nhMxSk6qT/view?usp=drive_link",
+               "https://drive.google.com/file/d/1t9Y32zy4xGVDTjFzFG4QkSFlom9-BSmq/view?usp=drive_link",
+               "https://drive.google.com/file/d/157Fmj_SetFhWm8tS2_a3ymXWvyiv3aH4/view?usp=drive_link",
+               "https://drive.google.com/file/d/1p3lvOtq1HRpftVT8F_hJXPV4_yMCLsFW/view?usp=drive_link",
+               "https://drive.google.com/file/d/12kx7WdeGGWXO3K7P7vCFkQGKvbP-qJ2n/view?usp=drive_link"]
+
+# Vérifier si le modèle est déjà téléchargé
+for j,MODEL_PATH in enumerate(MODEL_PATHS):   
+   if not os.path.exists(MODEL_PATH):
+      print("🔽 Téléchargement du modèle depuis Google Drive...")
+      url = MODEL_URLS[j]  # Remplace FILE_ID
+      gdown.download(url, MODEL_PATH, quiet=False)
+      print("✅ Modèle téléchargé")
+   else:
+      print("✅ Modèle déjà présent")
 
 # Initialiser FastAPI
 description='Hello world'
@@ -86,7 +105,6 @@ async def predict(file: UploadFile):
     contents = await file.read()
     file_name = file.filename.replace('·','')
     save_path = f"./{file_name}"
-    print(f"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!{save_path}**********************************") 
     with open(save_path, "wb") as f:
        f.write(contents)
 
