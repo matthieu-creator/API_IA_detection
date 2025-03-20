@@ -1,13 +1,9 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile
 import numpy as np
 import cv2
 import tensorflow as tf
 from skimage.feature import graycomatrix, graycoprops
 import pandas as pd
-from io import BytesIO
-from pydantic import BaseModel 
-from PIL import Image
-import matplotlib.pyplot as plt
 from concurrent.futures import ThreadPoolExecutor
 import gdown
 import os
