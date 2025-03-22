@@ -115,11 +115,6 @@ async def predict(file: UploadFile):
     image = cv2.imread(f'./{file_name}')
  #   print("ok charger image")
  #   image = np.array(Image.open(BytesIO(contents))).astype(np.uint8)
-    features = batch_feature_extraction([image])
-    features['label'] = 0
-    feature_array = features[feature_columns].values.astype(np.float32)
-    print(feature_array.shape)
-    labels = features["label"].values.astype(np.float32)
 
     MODEL_PATHS = ["model.keras"] + [f"model_{k}.keras" for k in range(1,6)]
     MODEL_URLS = ["https://drive.google.com/file/d/1L5QUySliYl1JUTXISVJ1ZfYfke-MkIFi/view?usp=drive_link",
