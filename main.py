@@ -134,7 +134,7 @@ async def predict(file: UploadFile):
        else:
           print("✅ Modèle déjà présent")
 
-
+    proba = 0.5
     if proba < 0.6808936:
         proba_adjusted = proba / (2*0.6808936)
     else:
