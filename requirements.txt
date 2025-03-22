@@ -9,3 +9,4 @@ scikit-image
 pandas
 gdown
 python-multipart
+psutil
