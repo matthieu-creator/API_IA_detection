@@ -152,24 +152,25 @@ async def predict(file: UploadFile):
         ((image_ds, feature_ds), label_ds)
     ).batch(32).prefetch(tf.data.AUTOTUNE)
     
-    model = tf.keras.models.load_model("model.keras")
-    model1 = tf.keras.models.load_model("model_1.keras")
-    model2 = tf.keras.models.load_model("model_2.keras")
-    model3 = tf.keras.models.load_model("model_3.keras")
-    model4 = tf.keras.models.load_model("model_4.keras")
-    model5 = tf.keras.models.load_model("model_5.keras")
-    result = model.predict(combined_ds)
-    result1 = model1.predict(combined_ds)
-    result2 = model2.predict(combined_ds)
-    result3 = model3.predict(combined_ds)
-    result4 = model4.predict(combined_ds)
-    result5 = model5.predict(combined_ds)
-    proba = max([float(result),float(result1),float(result2),\
-                 float(result3),float(result4),float(result5)])
-    if proba < 0.7610199:
-        proba_adjusted = proba / (2*0.7610199)
-    else:
-        proba_adjusted = (0.5 / (1-0.7610199)) * (proba - 0.7610199) + 0.5    
+  #  model = tf.keras.models.load_model("model.keras")
+  #  model1 = tf.keras.models.load_model("model_1.keras")
+  #  model2 = tf.keras.models.load_model("model_2.keras")
+  #  model3 = tf.keras.models.load_model("model_3.keras")
+  #  model4 = tf.keras.models.load_model("model_4.keras")
+  #  model5 = tf.keras.models.load_model("model_5.keras")
+  #  result = model.predict(combined_ds)
+  #  result1 = model1.predict(combined_ds)
+  #  result2 = model2.predict(combined_ds)
+  #  result3 = model3.predict(combined_ds)
+  #  result4 = model4.predict(combined_ds)
+  #  result5 = model5.predict(combined_ds)
+  #  proba = max([float(result),float(result1),float(result2),\
+  #               float(result3),float(result4),float(result5)])
+  #  if proba < 0.7610199:
+  #      proba_adjusted = proba / (2*0.7610199)
+  #  else:
+  #      proba_adjusted = (0.5 / (1-0.7610199)) * (proba - 0.7610199) + 0.5    
+    proba_adjusted = 0.5
     return {"probability_AI": proba_adjusted}
 
 if __name__ == "__main__":
