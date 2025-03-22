@@ -14,22 +14,22 @@ import os
 # Charger le modèle
 
 MODEL_PATHS = ["model.keras"] + [f"model_{k}.keras" for k in range(1,6)]
-MODEL_URLS = ["https://drive.google.com/file/d/1L5QUySliYl1JUTXISVJ1ZfYfke-MkIFi/view?usp=drive_link",
-               "https://drive.google.com/file/d/1DPEDyXpF80ken-dKuxD5G84nhMxSk6qT/view?usp=drive_link",
-               "https://drive.google.com/file/d/1t9Y32zy4xGVDTjFzFG4QkSFlom9-BSmq/view?usp=drive_link",
-               "https://drive.google.com/file/d/157Fmj_SetFhWm8tS2_a3ymXWvyiv3aH4/view?usp=drive_link",
-               "https://drive.google.com/file/d/1p3lvOtq1HRpftVT8F_hJXPV4_yMCLsFW/view?usp=drive_link",
-               "https://drive.google.com/file/d/12kx7WdeGGWXO3K7P7vCFkQGKvbP-qJ2n/view?usp=drive_link"]
+MODEL_IDs = ['1pltop6LLOwwn3pYfg8KAT2CDjohmvWty','1FKTLjF-EWwiHc4k6BiVtewF3v8H5VqBY',
+             '1Yg21KS-s8xt8fhIsV15wCYYQJGcdDMn2',
+             '12tX_yN_Eqz89HPj-fNV2TOL1D7OI8gx-',
+             '11RKyiTIs0ZuLmD8KjUD-XUWe5jqe17y8',
+             '1PPQQTVZFYcGlXdGkHUPm6XVbGv2otA-8']
+MODEL_URLS = [f"https://drive.google.com/uc?id={FILE_ID}&confirm=t" for FILE_ID in MODEL_IDs]
 
 # Vérifier si le modèle est déjà téléchargé
 for j,MODEL_PATH in enumerate(MODEL_PATHS):   
-   if not os.path.exists(MODEL_PATH):
-      print("🔽 Téléchargement du modèle depuis Google Drive...")
-      url = MODEL_URLS[j]  # Remplace FILE_ID
-      gdown.download(url, MODEL_PATH, quiet=False)
-      print("✅ Modèle téléchargé")
-   else:
-      print("✅ Modèle déjà présent")
+    if not os.path.exists(MODEL_PATH):
+          print("🔽 Téléchargement du modèle depuis Google Drive...")
+          url = MODEL_URLS[j]  # Remplace FILE_ID
+          gdown.download(url, MODEL_PATH, quiet=False)
+          print("✅ Modèle téléchargé")
+    else:
+          print("✅ Modèle déjà présent")
 
 # Initialiser FastAPI
 description='Hello world'
@@ -97,6 +97,8 @@ async def index():
 @app.post("/predict")
 async def predict(file: UploadFile):
 
+    print("Current working directory:", os.getcwd())
+    print("Files in current dir:", os.listdir())
     feature_columns =  ["glcm_contrast", "glcm_dissimilarity", "laplacian_var", "edge_density", "fft_high_freq_mean"]
     contents = await file.read()
     file_name = file.filename.replace('·','')
@@ -112,6 +114,24 @@ async def predict(file: UploadFile):
     feature_array = features[feature_columns].values.astype(np.float32)
     print(feature_array.shape)
     labels = features["label"].values.astype(np.float32)
+
+    MODEL_PATHS = ["model.keras"] + [f"model_{k}.keras" for k in range(1,6)]
+    MODEL_URLS = ["https://drive.google.com/file/d/1L5QUySliYl1JUTXISVJ1ZfYfke-MkIFi/view?usp=drive_link",
+               "https://drive.google.com/file/d/1DPEDyXpF80ken-dKuxD5G84nhMxSk6qT/view?usp=drive_link",
+               "https://drive.google.com/file/d/1t9Y32zy4xGVDTjFzFG4QkSFlom9-BSmq/view?usp=drive_link",
+               "https://drive.google.com/file/d/157Fmj_SetFhWm8tS2_a3ymXWvyiv3aH4/view?usp=drive_link",
+               "https://drive.google.com/file/d/1p3lvOtq1HRpftVT8F_hJXPV4_yMCLsFW/view?usp=drive_link",
+               "https://drive.google.com/file/d/12kx7WdeGGWXO3K7P7vCFkQGKvbP-qJ2n/view?usp=drive_link"]
+
+    # Vérifier si le modèle est déjà téléchargé
+    for j,MODEL_PATH in enumerate(MODEL_PATHS):   
+       if not os.path.exists(MODEL_PATH):
+          print("🔽 Téléchargement du modèle depuis Google Drive...")
+          url = MODEL_URLS[j]  # Remplace FILE_ID
+          gdown.download(url, MODEL_PATH, quiet=False)
+          print("✅ Modèle téléchargé")
+       else:
+          print("✅ Modèle déjà présent")
 
     def load_and_preprocess(path):
        img = tf.io.read_file(path)
