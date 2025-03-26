@@ -8,6 +8,9 @@ from concurrent.futures import ThreadPoolExecutor
 import gdown
 import psutil
 import os
+import keras
+
+import tensorflow as tf
 
 # uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 
@@ -41,7 +44,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Pour autoriser tout le monde, sinon mets ["http://localhost:3000"]
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -91,7 +94,8 @@ def batch_feature_extraction(images, workers=4):
 
 def load_model():
     global model
-    model = tf.keras.models.load_model("model.keras")
+    model = tf.keras.models.load_model("model_4.keras")
+    return model
 
 @app.get('/')
 async def index():
@@ -115,6 +119,11 @@ async def predict(file: UploadFile):
     image = cv2.imread(f'./{file_name}')
  #   print("ok charger image")
  #   image = np.array(Image.open(BytesIO(contents))).astype(np.uint8)
+    features = batch_feature_extraction([image])
+    features['label'] = 0
+    feature_array = features[feature_columns].values.astype(np.float32)
+    print(feature_array.shape)
+    labels = features["label"].values.astype(np.float32)
 
     MODEL_PATHS = ["model.keras"] + [f"model_{k}.keras" for k in range(1,6)]
     MODEL_URLS = ["https://drive.google.com/file/d/1L5QUySliYl1JUTXISVJ1ZfYfke-MkIFi/view?usp=drive_link",
@@ -134,7 +143,40 @@ async def predict(file: UploadFile):
        else:
           print("✅ Modèle déjà présent")
 
-    proba = 0.5
+    def load_and_preprocess(path):
+       img = tf.io.read_file(path)
+    #   img = tf.image.decode_jpeg(tf.io.encode_jpeg(image), channels=3)
+       img = tf.image.decode_jpeg(img, channels=3)
+       img = tf.image.resize(img, (224, 224))
+       img = tf.keras.applications.efficientnet.preprocess_input(img)
+       return img
+
+    image_ds = tf.data.Dataset.from_tensor_slices([save_path]).map(load_and_preprocess)
+    # features manuais
+    feature_ds = tf.data.Dataset.from_tensor_slices(feature_array)
+    # labels
+    label_ds = tf.data.Dataset.from_tensor_slices(labels)
+    
+    # combinar todos os componentes
+    combined_ds = tf.data.Dataset.zip(
+        ((image_ds, feature_ds), label_ds)
+    ).batch(32).prefetch(tf.data.AUTOTUNE)
+    
+    #model = tf.keras.models.load_model("model.keras")
+    model1 = tf.keras.models.load_model("model_1.keras")
+    #model2 = tf.keras.models.load_model("model_2.keras")
+    #model3 = tf.keras.models.load_model("model_3.keras")
+    #model4 = tf.keras.models.load_model("model_4.keras")
+    #model5 = tf.keras.models.load_model("model_5.keras")
+    #result = model.predict(combined_ds)
+    result1 = model1.predict(combined_ds)
+    #result2 = model2.predict(combined_ds)
+    #result3 = model3.predict(combined_ds)
+    #result4 = model4.predict(combined_ds)
+    proba = float(result1)
+    #result5 = model5.predict(combined_ds)
+    #proba = max([float(result1),float(result2),\
+    #             float(result3),float(result4),float(result5)])
     if proba < 0.6808936:
         proba_adjusted = proba / (2*0.6808936)
     else:
@@ -144,5 +186,4 @@ async def predict(file: UploadFile):
 
 if __name__ == "__main__":
     import uvicorn
-#    load_model()
     uvicorn.run(app, host="127.0.0.1", port=8000)
