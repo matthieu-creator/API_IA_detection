@@ -10,4 +10,3 @@ pandas
 gdown
 python-multipart
 psutil
-cv2
