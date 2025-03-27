@@ -163,7 +163,7 @@ async def predict(file: UploadFile):
     combined_ds = tf.data.Dataset.zip(
         ((image_ds, feature_ds), label_ds)
     ).batch(32).prefetch(tf.data.AUTOTUNE)
-    
+    print('Je suis arrivé ici!!!!!!!!')
     #model = tf.keras.models.load_model("model.keras")
     #model1 = tf.keras.models.load_model("model_1.keras")
     #model2 = tf.keras.models.load_model("model_2.keras")
